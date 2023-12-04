@@ -60,6 +60,7 @@ class Enemy(Entity):
             direction = pygame.math.Vector2()
 
         return (distance, direction)
+
     def get_status(self, player):
         distance = self.get_player_distance_direction(player)[0]
 
@@ -114,7 +115,7 @@ class Enemy(Entity):
             if attack_type == 'weapon':
                 self.health -= player.get_full_weapon_damage()
             else:
-                pass # magic damage
+                self.health -= player.get_full_magic_damage() # magic damage
             self.hit_time = pygame.time.get_ticks()
             self.vulnerable = False
 
