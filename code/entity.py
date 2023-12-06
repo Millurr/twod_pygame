@@ -5,16 +5,16 @@ class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
         self.frame_index = 0
-        self.animation_speed = 0.15
+        self.animation_speed = 4
         self.direction = pygame.math.Vector2()
 
-    def move(self, speed):
+    def move(self, speed, delta_time):
         if self.direction.magnitude() != 0:
             self.direction = self.direction.normalize()
 
-        self.hitbox.x += self.direction.x * speed
+        self.hitbox.x += self.direction.x * speed * delta_time
         self.collision('horizontal')
-        self.hitbox.y += self.direction.y * speed
+        self.hitbox.y += self.direction.y * speed * delta_time
         self.collision('vertical')
         self.rect.center = self.hitbox.center
 

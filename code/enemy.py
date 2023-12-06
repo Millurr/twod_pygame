@@ -45,12 +45,14 @@ class Enemy(Entity):
         self.invincibility_duration = 300
 
         # sounds
+        self.can_play_attack_sound = True
+        self.attack_sound_time = None
         self.death_sound = pygame.mixer.Sound('../audio/death.wav')
         self.hit_sound = pygame.mixer.Sound('../audio/hit.wav')
         self.attack_sound = pygame.mixer.Sound(monster_info['attack_sound'])
         self.death_sound.set_volume(0.2)
         self.hit_sound.set_volume(0.2)
-        self.attack_sound.set_volume(0.3)
+        self.attack_sound.set_volume(0.2)
 
     def import_graphics(self, name):
         self.animations = {'idle': [], 'move': [], 'attack': []}
@@ -86,19 +88,26 @@ class Enemy(Entity):
         if self.status == 'attack':
             self.attack_time = pygame.time.get_ticks()
             self.damage_player(self.attack_damage, self.attack_type)
-            self.attack_sound.play()
+            self.play_attack_sound()
         elif self.status == 'move':
             self.direction = self.get_player_distance_direction(player)[1]
         else:
             self.direction = pygame.math.Vector2()
 
-    def animate(self):
+    def play_attack_sound(self):
+        if self.can_play_attack_sound:
+            self.attack_sound.play()
+            self.attack_sound_time = pygame.time.get_ticks()
+            self.can_play_attack_sound = False
+
+    def animate(self, delta_time):
         animation = self.animations[self.status]
-        self.frame_index += self.animation_speed
+        self.frame_index += self.animation_speed * delta_time
         if self.frame_index >= len(animation):
             if self.status == 'attack':
                 self.can_attack = False
             self.frame_index = 0
+            # print('attack from animate')
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center = self.hitbox.center)
 
@@ -118,6 +127,10 @@ class Enemy(Entity):
         if not self.vulnerable:
             if current_time - self.hit_time >= self.invincibility_duration:
                 self.vulnerable = True
+
+        if not self.can_play_attack_sound:
+            if current_time - self.attack_sound_time >= self.attack_cooldown:
+                self.can_play_attack_sound = True
 
     def get_damage(self, player, attack_type):
         if self.vulnerable:
@@ -141,10 +154,10 @@ class Enemy(Entity):
         if not self.vulnerable:
             self.direction *= -self.resistance
 
-    def update(self):
+    def update(self, delta_time):
         self.hit_reaction()
-        self.move(self.speed)
-        self.animate()
+        self.move(self.speed, delta_time)
+        self.animate(delta_time)
         self.cooldown()
         self.check_death()
 

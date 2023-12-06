@@ -16,7 +16,7 @@ class Game:
 
         # sound
         main_sound = pygame.mixer.Sound('../audio/main.ogg')
-        main_sound.set_volume(0.5)
+        main_sound.set_volume(0.2)
         main_sound.play(loops=-1)
 
     def run(self):
@@ -29,10 +29,10 @@ class Game:
                     if event.key == pygame.K_TAB:
                         self.level.toggle_menu()
 
+            delta_time = self.clock.tick(FPS)/1000
             self.screen.fill(WATER_COLOR)
-            self.level.run()
+            self.level.run(delta_time)
             pygame.display.update()
-            self.clock.tick(FPS)
 
 
 if __name__ == '__main__':

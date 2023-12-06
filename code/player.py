@@ -37,7 +37,7 @@ class Player(Entity):
         self.magic_switch_time = None
 
         # stats
-        self.stats = {'health':100, 'energy':60, 'attack':10, 'magic':4, 'speed':5}
+        self.stats = {'health':100, 'energy':60, 'attack':10, 'magic':4, 'speed':500}
         self.max_stats = {'health':300, 'energy':140, 'attack':20, 'magic':10, 'speed':10}
         self.upgrade_cost = {'health': 100, 'energy': 100, 'attack': 100, 'magic': 100, 'speed': 100}
         self.health = self.stats['health']
@@ -52,7 +52,7 @@ class Player(Entity):
 
         # import a sound
         self.weapon_attack_sound = pygame.mixer.Sound('../audio/sword.wav')
-        self.weapon_attack_sound.set_volume(0.4)
+        self.weapon_attack_sound.set_volume(0.2)
 
     def import_player_assets(self):
         character_path = '../graphics/player/'
@@ -155,11 +155,11 @@ class Player(Entity):
             if current_time - self.hurt_time >= self.invulnerability_duration:
                 self.vulnerable = True
 
-    def animate(self):
+    def animate(self, delta_time):
         animation = self.animations[self.status]
 
         # loop over frame index
-        self.frame_index += self.animation_speed
+        self.frame_index += self.animation_speed * delta_time
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
@@ -190,15 +190,15 @@ class Player(Entity):
     def get_cost_by_index(self, index):
         return list(self.upgrade_cost.values())[index]
 
-    def energy_recovery(self):
+    def energy_recovery(self,delta_time):
         if self.energy < self.stats['energy']:
-            self.energy += 0.01 * self.stats['magic']
+            self.energy += delta_time * self.stats['magic']
         else:
             self.energy = self.stats['energy']
-    def update(self):
+    def update(self, delta_time):
         self.input()
         self.cooldowns()
         self.get_status()
-        self.animate()
-        self.move(self.stats['speed'])
-        self.energy_recovery()
+        self.animate(delta_time)
+        self.move(self.stats['speed'], delta_time)
+        self.energy_recovery(delta_time)

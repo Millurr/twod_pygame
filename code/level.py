@@ -88,7 +88,7 @@ class Level:
                                     self.trigger_death_particles,
                                     self.add_exp)
 
-    def run(self):
+    def run(self, delta_time):
         # update and draw the game
         self.visible_sprites.custom_draw(self.player)
         self.ui.display(self.player)
@@ -96,7 +96,7 @@ class Level:
         if self.game_paused:
             self.upgrade.display()
         else:
-            self.visible_sprites.update()
+            self.visible_sprites.update(delta_time)
             self.visible_sprites.enemy_update(self.player)
             self.player_attack_logic()
 
